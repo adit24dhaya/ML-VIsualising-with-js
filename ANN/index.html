@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Neural Network Forward Pass (p5.js)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script defer src="nn.js"></script>
+    <style>
+      :root { --card: rgba(255,255,255,.8); --shadow: 0 10px 30px rgba(0,0,0,.12) }
+      html,body{height:100%}
+      body{
+        margin:0; font-family:ui-sans-serif, system-ui, -apple-system, Arial;
+        background: radial-gradient(1200px 800px at 20% -10%, #f4f7ff 0%, #eef2ff 35%, #eaf2ef 65%, #ffffff 100%);
+      }
+      canvas{ display:block; margin:0 auto; }
+      #hud{
+        position:fixed; bottom:18px; right:18px; max-width:420px;
+        background:var(--card); backdrop-filter: blur(10px);
+        padding:12px 14px; border-radius:14px; border:1px solid rgba(0,0,0,.06);
+        box-shadow:var(--shadow); font-size:14px; line-height:1.1; user-select:none;
+      }
+      .row{display:flex; align-items:center; gap:8px; margin:8px 0}
+      .row label{min-width:90px; opacity:.8}
+      .row input[type=range]{width:220px}
+      .pill{display:inline-block; padding:3px 8px; border-radius:999px; background:#f3f4f6; margin-left:6px}
+      button{border-radius:10px; border:1px solid #ddd; padding:6px 10px; background:#fff; cursor:pointer;
+        box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    </style>
+  </head>
+  <body>
+    <div id="hud">
+      <div class="row"><strong>NN Forward Pass</strong></div>
+      <div class="row">
+        <label>Hidden size</label>
+        <input id="hsize" type="range" min="2" max="8" value="3" />
+        <span id="hval" class="pill">3</span>
+      </div>
+      <div class="row">
+        <label>Activation</label>
+        <select id="act">
+          <option value="relu">ReLU</option>
+          <option value="tanh">tanh</option>
+          <option value="sigmoid">sigmoid</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Randomize</label><button id="reinit">Weights</button>
+        <label>Noise</label><input id="noise" type="range" min="0" max="100" value="0" />
+        <span id="nval" class="pill">0</span>
+      </div>
+      <div class="row">
+        <span>Move your mouse inside the canvas
+            it’s the 2D input (x,y ∈ [0,1]). 
+            Edge thickness/opacity show activations, node fill shows pre-activation/output.</span>
+      </div>
+    </div>
+  </body>
+</html>
