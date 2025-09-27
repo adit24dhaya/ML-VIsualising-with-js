@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>KNN with p5.js — Polished</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script defer src="sketch.js"></script>
+  <style>
+    :root {
+      --card: rgba(255, 255, 255, .75);
+      --shadow: 0 10px 30px rgba(0, 0, 0, .12)
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Arial;
+      background: radial-gradient(1200px 800px at 20% -10%, #f4f7ff 0%, #eef2ff 35%, #eaf2ef 65%, #ffffff 100%);
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Glassy HUD */
+    #hud {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      padding: 0;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, .06);
+      box-shadow: var(--shadow);
+      font-size: 14px;
+      line-height: 1.1;
+      user-select: none;
+      max-width: 380px;
+    }
+
+    /* Drag handle only */
+    #hudHandle {
+      padding: 10px 14px 8px 14px;
+      border-bottom: 1px solid rgba(0, 0, 0, .06);
+      cursor: grab;
+      border-top-left-radius: 14px;
+      border-top-right-radius: 14px;
+      background: rgba(255, 255, 255, .55);
+    }
+
+    #hudHandle:active {
+      cursor: grabbing;
+    }
+
+    #hudBody {
+      padding: 12px 14px;
+    }
+
+    #hudHandle h3 {
+      margin: 0;
+      font-size: 16px
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0
+    }
+
+    .row label {
+      min-width: 74px;
+      opacity: .8
+    }
+
+    .row input[type=range] {
+      width: 190px
+    }
+
+    .muted {
+      opacity: .7
+    }
+
+    button,
+    select {
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      padding: 6px 10px;
+      background: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08)
+    }
+
+    select {
+      cursor: default;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      margin-left: 6px
+    }
+
+    #err {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffe8e8;
+      color: #8a1c1c;
+      border: 1px solid #f3c5c5;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, .12);
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="hud">
+    <div id="hudHandle">
+      <h3>KNN Demo</h3>
+    </div>
+    <div id="hudBody">
+      <div class="row">
+        <label>Chart</label>
+        <input id="chart" type="checkbox" />
+        <span class="muted">Axes 0–100</span>
+      </div>
+
+      <div class="row">
+        <label>Theme</label>
+        <select id="theme">
+          <option value="dots">Dots</option>
+          <option value="emoji">Emoji (🧙⚔️🛡️)</option>
+        </select>
+        <span class="muted">Neighbors outlined in yellow</span>
+      </div>
+
+      <div class="row">
+        <label>Points</label>
+        <input id="points" type="range" min="5" max="500" value="20" />
+        <span id="pointsVal" class="pill">20</span>
+      </div>
+
+      <div class="row">
+        <label>K</label>
+        <input id="k" type="range" min="1" max="50" value="3" />
+        <span id="kVal" class="pill">3</span>
+      </div>
+
+      <div class="row">
+        <label>Classes</label>
+        <input id="classes" type="range" min="2" max="5" value="2" />
+        <span id="classesVal" class="pill">2</span>
+      </div>
+
+      <div class="row">
+        <button id="regen">Regenerate</button>
+        <button id="shuffle">Shuffle Classes</button>
+        <label class="muted">Keys: [ / ] change K</label>
+      </div>
+    </div>
+  </div>
+
+  <div id="err"></div>
+
+  <!-- drag only by header; ignore clicks in inputs/selects/buttons -->
+  <script>
+    (() => {
+      const hud = document.getElementById('hud');
+      const handle = document.getElementById('hudHandle');
+      let drag = false, sx = 0, sy = 0, lx = 0, ly = 0;
+
+      handle.addEventListener('mousedown', (e) => {
+        // only start drag if the mousedown is actually on the handle (not a child control)
+        if (e.button !== 0) return; // left-click only
+        drag = true; sx = e.clientX; sy = e.clientY;
+        const r = hud.getBoundingClientRect(); lx = r.left; ly = r.top;
+        hud.style.left = lx + 'px'; hud.style.top = ly + 'px';
+        hud.style.right = 'auto'; hud.style.bottom = 'auto';
+        e.preventDefault();
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!drag) return;
+        hud.style.transform = 'translate(0,0)';
+        hud.style.left = (lx + e.clientX - sx) + 'px';
+        hud.style.top = (ly + e.clientY - sy) + 'px';
+      });
+      window.addEventListener('mouseup', () => drag = false);
+      window.addEventListener('blur', () => drag = false); // stop dragging if focus changes
+    })();
+  </script>
+</body>
+
+</html>
