@@ -76,13 +76,20 @@ No server setup is required.
 ## 📂 Project Structure
 ```
 .
-├── index.html        # Neural Network demo
-├── nn.js             # Neural Network logic
-├── knn_index.html    # KNN demo
-├── sketch.js         # KNN logic
-├── pca_index.html    # PCA demo
-├── pca.js            # PCA logic
-└── README.md         # This file
+├── ANN
+│   ├── index.html
+│   └── nn.js
+│
+├── KNN
+│   ├── index.html
+│   └── sketch.js
+│
+├── PCA
+│   ├── index.html
+│   └── pca.js
+│
+└── README.md
+
 ```
 
 ---
