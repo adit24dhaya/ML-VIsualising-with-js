@@ -1,6 +1,3 @@
-// PCA Visualizer (2D): shows PC1/PC2 arrows, optional projection onto PC1,
-// and optional reconstruction from PC1 only.
-
 let W = 900, H = 560;
 let pts = [], N = 200;
 let anis = 5;        // variance ratio major/minor
@@ -82,13 +79,15 @@ function regenerate(){
   pts = [];
   // axis-aligned Gaussian first: major variance = anis, minor = 1 (scaled)
   const sMajor = anis*10, sMinor = 10; // scale for visibility
+  const cx = W * 0.5, cy = H * 0.5;    // ⟵ center exactly
+  const th = toRad(thetaDeg);
+
   for (let i=0;i<N;i++){
     // sample (u,v) from N(0, sMajor^2) and N(0, sMinor^2)
     const u = randn()*sMajor, v = randn()*sMinor;
-    // rotate by theta, center in canvas
-    const th = toRad(thetaDeg);
-    const x = u*Math.cos(th) - v*Math.sin(th) + W*0.5;
-    const y = u*Math.sin(th) + v*Math.cos(th) + H*0.45;
+    // rotate by theta, center at (cx, cy)
+    const x = u*Math.cos(th) - v*Math.sin(th) + cx;
+    const y = u*Math.sin(th) + v*Math.cos(th) + cy;
     pts.push({x,y});
   }
 }
@@ -129,40 +128,32 @@ function cov2(A, mu){
   const c = 1/max(1, n-1);
   return { sxx:sxx*c, sxy:sxy*c, syy:syy*c };
 }
-// eigen for symmetric 2x2 [[a,b],[b,c]]
 function eig2x2(S){
   const a=S.sxx, b=S.sxy, c=S.syy;
   const tr = a+c, det = a*c - b*b;
   const disc = Math.sqrt(max(0, tr*tr/4 - det));
   const l1 = tr/2 + disc, l2 = tr/2 - disc;
-  // eigenvector for l: (b, l-a) unless b≈0
   function vecFor(l){
     if (Math.abs(b) > 1e-12) {
       const v = {x:b, y:(l - a)};
       const n = Math.hypot(v.x, v.y) || 1; return {x:v.x/n, y:v.y/n};
     } else {
-      // matrix already diagonal
       return (a >= c) ? {x:1,y:0} : {x:0,y:1};
     }
   }
   let v1 = vecFor(l1), v2 = vecFor(l2);
   return { vals:[l1,l2], vecs:[v1,v2] };
 }
-
-// vector ops
 function add2(a,b){ return {x:a.x+b.x, y:a.y+b.y}; }
 function sub2(a,b){ return {x:a.x-b.x, y:a.y-b.y}; }
 function mul2(v,s){ return {x:v.x*s, y:v.y*s}; }
 function dot2(a,b){ return a.x*b.x + a.y*b.y; }
-
-// draw PC arrow from center in both directions
 function drawPCArrow(center, v, len, col){
   push();
   stroke(col); strokeWeight(3);
   const a = {x:center.x - v.x*len, y:center.y - v.y*len};
   const b = {x:center.x + v.x*len, y:center.y + v.y*len};
   line(a.x, a.y, b.x, b.y);
-  // arrowheads
   drawArrowHead(b, v, col);
   drawArrowHead(a, {x:-v.x, y:-v.y}, col);
   pop();
@@ -170,24 +161,16 @@ function drawPCArrow(center, v, len, col){
 function drawArrowHead(p, dir, col){
   const s=9;
   const angle = Math.atan2(dir.y, dir.x);
-  push();
-  translate(p.x, p.y); rotate(angle);
-  fill(col); noStroke();
-  triangle(0,0, -s,  s*0.5, -s, -s*0.5);
-  pop();
+  push(); translate(p.x, p.y); rotate(angle);
+  fill(col); noStroke(); triangle(0,0, -s,  s*0.5, -s, -s*0.5); pop();
 }
-
-// UI & grid
 function sel(id){ return document.getElementById(id); }
 function drawGrid(step=40){
   stroke(235); strokeWeight(1);
   for (let x=0;x<=width;x+=step) line(x,0,x,height);
   for (let y=0;y<=height;y+=step) line(0,y,width,y);
 }
-
-// Gaussian sampler
 function randn(){
-  // Box–Muller
   let u=0, v=0; while(u===0) u=Math.random(); while(v===0) v=Math.random();
   return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
 }
