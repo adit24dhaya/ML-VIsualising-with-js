@@ -22,9 +22,9 @@
         box-shadow:var(--shadow); font-size:14px; line-height:1.15; user-select:none;
         box-sizing:border-box; z-index:10;
       }
-      .row{display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:8px 0}
-      .row label{min-width:80px; opacity:.8}
-      .row input[type=range]{flex:1 1 160px; max-width:280px}
+      .row{display:grid; grid-template-columns: auto 1fr auto auto 1fr auto; gap:10px 12px; align-items:center; margin:8px 0}
+      .row label{min-width:72px; opacity:.8}
+      .row input[type=range]{width:100%; max-width:280px}
       .pill{display:inline-block; padding:3px 8px; border-radius:999px; background:#f3f4f6; margin-left:6px}
       button{
         border-radius:10px; border:1px solid #ddd; padding:6px 10px; background:#fff; cursor:pointer;
@@ -36,8 +36,8 @@
       .bar > span{position:absolute; left:0; top:0; bottom:0; width:0%; background:#7aa2ff}
       .num{min-width:70px; text-align:right}
       @media (max-width: 640px){
-        .row label{ min-width:72px }
-        .row input[type=range]{ flex-basis:140px; max-width:220px }
+        .row{ grid-template-columns: auto 1fr; }
+        .row label{ min-width:64px }
         #hud{ bottom:12px; border-radius:12px; }
       }
     </style>
@@ -47,8 +47,6 @@
       <div class="row">
         <strong>PCA Demo</strong>
         <span id="dims" class="pill"></span>
-        <span id="fps" class="pill">FPS</span>
-        <span id="selCount" class="pill">sel: 0</span>
         <span class="muted" style="margin-left:auto">Shortcuts: <b>S</b> save · <b>R</b> regen · <b>G</b> proj</span>
       </div>
 
@@ -92,15 +90,25 @@
 
       <div class="row"><strong class="muted">Variance</strong></div>
       <div class="row">
+        <label>Mode</label>
+        <select id="varMode">
+          <option value="pca" selected>PCA (λ)</option>
+          <option value="view">View (angle)</option>
+        </select>
+      </div>
+      <div class="row">
         <label>PC₁</label><div class="bar"><span id="eig1"></span></div><span id="eig1val" class="num">0.000</span>
         <label>PC₂</label><div class="bar"><span id="eig2"></span></div><span id="eig2val" class="num">0.000</span>
       </div>
 
       <div class="row">
         <label>Reconstruct</label><input id="recon" type="checkbox" />
-        <button id="regen" style="margin-left:auto">Regenerate</button>
-        <button id="export">Export CSV</button>
-        <button id="save">Save PNG</button>
+        <div></div><div></div>
+        <div style="grid-column: 4 / -1; display:flex; gap:10px; justify-content:flex-end;">
+          <button id="regen">Regenerate</button>
+          <button id="export">Export CSV</button>
+          <button id="save">Save PNG</button>
+        </div>
       </div>
     </div>
 
@@ -114,7 +122,6 @@
         if(e1) e1.style.width = p1 + '%'; if(e2) e2.style.width = p2 + '%';
         if(v1) v1.textContent = pc1.toFixed(3); if(v2) v2.textContent = pc2.toFixed(3);
       };
-      window.updateFPS = (f) => { const el = document.getElementById('fps'); if(el) el.textContent = `${Math.round(f)} FPS`; };
     </script>
   </body>
 </html>
