@@ -9,7 +9,24 @@ This project contains **three interactive demos** built with [p5.js](https://p5j
 Each demo runs directly in the browser, no backend required.
 
 ---
+## Screenshots
 
+## ANN 
+![Demo Screenshot](ANN/ANN-1.png)
+![Demo Screenshot](ANN/ANN-2.png)
+![Demo Screenshot](ANN/ANN-3.png)
+![Demo Screenshot](ANN/ANN-4.png)
+
+## PCA
+![Demo Screenshot](PCA/PCA-1.png)
+![Demo Screenshot](PCA/PCA-2.png)
+![Demo Screenshot](PCA/PCA-3.png)
+![Demo Screenshot](PCA/PCA-4.png)
+
+## KNN
+![Demo Screenshot](KNN/KNN.png)
+
+---
 ## 🚀 Getting Started
 
 ### Prerequisites
