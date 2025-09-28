@@ -17,14 +17,15 @@ Each demo runs directly in the browser, no backend required.
 ![Demo Screenshot](ANN/ANN-3.png)
 ![Demo Screenshot](ANN/ANN-4.png)
 
+## KNN
+![Demo Screenshot](KNN/KNN.png)
+
 ## PCA
 ![Demo Screenshot](PCA/PCA-1.png)
 ![Demo Screenshot](PCA/PCA-2.png)
 ![Demo Screenshot](PCA/PCA-3.png)
 ![Demo Screenshot](PCA/PCA-4.png)
 
-## KNN
-![Demo Screenshot](KNN/KNN.png)
 
 ---
 ## 🚀 Getting Started
